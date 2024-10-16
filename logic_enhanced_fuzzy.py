@@ -19,6 +19,8 @@ class CarLogic:
         self.see_sign_time = 0
         self.max_see_sign_time = 7
         self.stop = False
+        self.straight_sign_time = 0 
+        self.straight_sign_duration = 2
 
         # Initialize the Fuzzy PID controller
         self.pid_controller = Fuzzy_PID(Pmax=9, Pmin=0, Imax=0.8, Imin=0, Dmax=1.2, Dmin=0)
@@ -58,11 +60,22 @@ class CarLogic:
     def handle_sign_detection(self):
         """Handle behavior based on the last detected sign."""
         if self.last_sign_detection == 'straight':
-            # Continue going straight; ignore turning logic
-            self.throttle = self.default_throttle
-            self.steering_angle = 0  # Maintain straight direction
-            self.set_turning_time()  # Set the timer to continue straight
-        
+            self.straight_sign_time = time.time()
+
+            if time.time() - self.straight_sign_time <= self.straight_sign_duration:
+
+                if not self.have_left or not self.have_right:
+
+                    self.throttle = self.default_throttle
+                    self.steering_angle = 0 
+                    self.set_turning_time()
+                    
+                # else:
+                #     self.steering_angle = self.pid_controller.update(0)  
+                #     self.throttle = self.default_throttle 
+            else:
+                self.straight_sign_time = 0
+            
         elif self.steering_angle != 0 and self.last_sign_detection and not self.turning_time:
             self.throttle = self.min_throttle
 

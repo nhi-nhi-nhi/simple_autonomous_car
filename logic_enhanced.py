@@ -1,6 +1,5 @@
 import time
 from lane_line_detection import *
-from traffic_sign_detection import detect_traffic_signs
 from PID_Fuzzy import *
 
 class PIDController:
